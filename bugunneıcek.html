@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haydi Gel İçelim - Online Davetiye</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f4;
+            /* Dahili SVG Desenli Arka Plan (Görsel Yüklenme Sorunu Olmaz) */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g opacity="0.12"><g transform="rotate(30 50 50)"><path d="M47 15h6v4h-6z" fill="%23005A2B"/><path d="M46 19h8a1 1 0 0 1 1 1v6a3 3 0 0 1-.6 1.8l-2.4 3.2a1 1 0 0 0-.2.6V80a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V31.6a1 1 0 0 0-.2-.6l-2.4-3.2A3 3 0 0 1 45 26v-6a1 1 0 0 1 1-1z" fill="%23005A2B"/><rect x="45.5" y="42" width="9" height="18" rx="1" fill="%23E2B000"/></g><g transform="rotate(-30 50 50)"><path d="M47 15h6v4h-6z" fill="%23005A2B"/><path d="M46 19h8a1 1 0 0 1 1 1v6a3 3 0 0 1-.6 1.8l-2.4 3.2a1 1 0 0 0-.2.6V80a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V31.6a1 1 0 0 0-.2-.6l-2.4-3.2A3 3 0 0 1 45 26v-6a1 1 0 0 1 1-1z" fill="%23005A2B"/><rect x="45.5" y="42" width="9" height="18" rx="1" fill="%23E2B000"/></g></g></svg>');
+            background-size: 90px 90px;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Müzik Kontrol Butonu */
+        .music-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ffffff;
+            border: 2px solid #005a2b;
+            color: #005a2b;
+            padding: 10px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 100;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .music-btn:hover {
+            background: #005a2b;
+            color: #fff;
+        }
+
+        .music-btn.playing i {
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid rgba(0, 90, 43, 0.15);
+            border-radius: 24px;
+            padding: 32px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 20px 40px rgba(0, 90, 43, 0.08);
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        /* Dahili Çapraz Bira Şişesi Başlık İkonu */
+        .header .icon-badge {
+            width: 80px;
+            height: 80px;
+            background: #e8f5e9;
+            border: 2px solid #005a2b;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 16px rgba(0, 90, 43, 0.12);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #005a2b;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .section-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* İçecek Izgarası */
+        .drink-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .drink-option {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            user-select: none;
+        }
+
+        .drink-option:hover {
+            background: #f1f5f9;
+            border-color: #005a2b;
+            transform: translateY(-2px);
+        }
+
+        .drink-option.selected {
+            background: rgba(0, 90, 43, 0.08);
+            border-color: #005a2b;
+            box-shadow: 0 0 12px rgba(0, 90, 43, 0.15);
+        }
+
+        .drink-option i {
+            font-size: 24px;
+            color: #005a2b;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .drink-option span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Form Elemanları */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            color: #0f172a;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: #005a2b;
+            background: #fff;
+        }
+
+        /* WhatsApp Butonu */
+        .btn-whatsapp {
+            width: 100%;
+            background: #25d366;
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 16px rgba(37, 211, 102, 0.25);
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn-whatsapp:hover {
+            background: #20bd5a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.35);
+        }
+
+        .btn-whatsapp:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Müzik Kontrol Butonu -->
+    <button class="music-btn" id="musicToggle" onclick="toggleMusic()">
+        <i class="fa-solid fa-compact-disc"></i>
+        <span id="musicText">Müziği Başlat</span>
+    </button>
+
+    <!-- Ses Dosyası (Yüksek Sadakat - Haydi Gel İçelim) -->
+    <audio id="bgMusic" loop>
+        <source src="https://raw.githubusercontent.com/cagri-c/sample-audio/main/haydi-gel-icelim.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="card">
+        <div class="header">
+            <!-- Dahili Vektör Çapraz Bira Şişeleri -->
+            <div class="icon-badge">
+                <svg width="46" height="46" viewBox="0 0 100 100">
+                    <g transform="rotate(30 50 50)">
+                        <path d="M47 15h6v4h-6z" fill="#005A2B"/>
+                        <path d="M46 19h8a1 1 0 0 1 1 1v6a3 3 0 0 1-.6 1.8l-2.4 3.2a1 1 0 0 0-.2.6V80a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V31.6a1 1 0 0 0-.2-.6l-2.4-3.2A3 3 0 0 1 45 26v-6a1 1 0 0 1 1-1z" fill="#005A2B"/>
+                        <rect x="45.5" y="42" width="9" height="18" rx="1" fill="#E2B000"/>
+                    </g>
+                    <g transform="rotate(-30 50 50)">
+                        <path d="M47 15h6v4h-6z" fill="#005A2B"/>
+                        <path d="M46 19h8a1 1 0 0 1 1 1v6a3 3 0 0 1-.6 1.8l-2.4 3.2a1 1 0 0 0-.2.6V80a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V31.6a1 1 0 0 0-.2-.6l-2.4-3.2A3 3 0 0 1 45 26v-6a1 1 0 0 1 1-1z" fill="#005A2B"/>
+                        <rect x="45.5" y="42" width="9" height="18" rx="1" fill="#E2B000"/>
+                    </g>
+                </svg>
+            </div>
+            <h1>Haydi Gel İçelim</h1>
+            <p>Modunu seç, detayı belirle, buluşalım!</p>
+        </div>
+
+        <div class="section-label">
+            <i class="fa-solid fa-glass-water" style="color:#005a2b;"></i> İçeceğini Seç
+        </div>
+
+        <div class="drink-grid">
+            <div class="drink-option" onclick="selectDrink(this, 'Viski')">
+                <i class="fa-solid fa-glass-whiskey"></i>
+                <span>Viski</span>
+            </div>
+            <div class="drink-option" onclick="selectDrink(this, 'Rakı')">
+                <i class="fa-solid fa-wine-glass"></i>
+                <span>Rakı</span>
+            </div>
+            <div class="drink-option" onclick="selectDrink(this, 'Bira')">
+                <i class="fa-solid fa-beer-mug-empty"></i>
+                <span>Bira</span>
+            </div>
+            <div class="drink-option" onclick="selectDrink(this, 'Çay')">
+                <i class="fa-solid fa-mug-hot"></i>
+                <span>Çay</span>
+            </div>
+            <div class="drink-option" onclick="selectDrink(this, 'Kahve')">
+                <i class="fa-solid fa-coffee"></i>
+                <span>Kahve</span>
+            </div>
+            <div class="drink-option" onclick="selectDrink(this, 'Su')">
+                <i class="fa-solid fa-bottle-water"></i>
+                <span>Su</span>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Tarih</label>
+                <input type="date" id="eventDate">
+            </div>
+            <div class="form-group">
+                <label>Saat</label>
+                <input type="time" id="eventTime" value="20:00">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Mekan Seçimi</label>
+            <input type="text" id="eventLocation" placeholder="Örn: Evde, Sahilde, Mekanda...">
+        </div>
+
+        <button class="btn-whatsapp" onclick="sendWhatsApp()">
+            <i class="fa-brands fa-whatsapp" style="font-size: 22px;"></i> WhatsApp ile Yanıtla
+        </button>
+    </div>
+
+    <script>
+        const TARGET_PHONE = "905367731907";
+        let selectedDrink = "";
+
+        // İçecek Seçimi
+        function selectDrink(element, drinkName) {
+            document.querySelectorAll('.drink-option').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedDrink = drinkName;
+        }
+
+        // Müzik Çalar Yönetimi
+        const audio = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicToggle');
+        const musicText = document.getElementById('musicText');
+
+        function toggleMusic() {
+            if (audio.paused) {
+                audio.play();
+                musicBtn.classList.add('playing');
+                musicText.innerText = "Müziği Durdur";
+            } else {
+                audio.pause();
+                musicBtn.classList.remove('playing');
+                musicText.innerText = "Müziği Başlat";
+            }
+        }
+
+        // İlk tıklamada müziği oynatmayı dener
+        document.body.addEventListener('click', function initialPlay() {
+            if (audio.paused) {
+                audio.play().then(() => {
+                    musicBtn.classList.add('playing');
+                    musicText.innerText = "Müziği Durdur";
+                }).catch(() => {});
+            }
+            document.body.removeEventListener('click', initialPlay);
+        }, { once: true });
+
+        // WhatsApp Mesajı Gönderme
+        function sendWhatsApp() {
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const location = document.getElementById('eventLocation').value.trim();
+
+            if (!selectedDrink) {
+                alert("Lütfen ne içmek istediğinizi seçin!");
+                return;
+            }
+
+            let message = `🍻 *Haydi Gel İçelim - Davet Yanıtı*\n\n`;
+            message += `🍹 *İçecek Tercihi:* ${selectedDrink}\n`;
+            if (date) message += `📅 *Tarih:* ${date}\n`;
+            if (time) message += `⏰ *Saat:* ${time}\n`;
+            if (location) message += `📍 *Mekan:* ${location}\n`;
+            
+            message += `\nKatılmak için sabırsızlanıyorum! 🎉`;
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${TARGET_PHONE}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
